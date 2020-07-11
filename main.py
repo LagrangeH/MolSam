@@ -1,12 +1,11 @@
 # !/usr/bin/env python
-import sys
-sys.path.insert(0, '../')
 from data import token
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
 import traceback
+
 
 # Авторизация ВК
 vk = vk_api.VkApi(token=token)
