@@ -47,13 +47,22 @@ def send(message, kb, attachment=None, payload=None):
 
 def create_inline_kb():
     keyboard = VkKeyboard(inline=True)
-    keyboard.add_openlink_button('Вступить в беседу', 'https://vk.me/join/AJQ1dyhiTxhUMvyd8Iq5PyfI')
+    keyboard.add_openlink_button('Вступить в  общую беседу', 'https://vk.me/join/AJQ1dyhiTxhUMvyd8Iq5PyfI')
+    keyboard.add_line()
+    print(test)
+    if test == 'культурно-массовые мероприятия':
+        keyboard.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d_UYIBiOxLbcrwCtzp3t')
+    if test == 'информационное':
+        keyboard.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d8sGNxjh0FKltch6tUZ1')
+    if test == 'корпоративная культура':
+        keyboard.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.com/id0')
+    if test == 'спортивное':
+        keyboard.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1dxUFNhjXn8R4wHWYPub2')
     keyboard = keyboard.get_keyboard()
     return keyboard
 
 
 def create_keyboard(response):
-    #     keyboard.add_openlink_button('Вступить в беседу', 'https://vk.me/join/AJQ1dyhiTxhUMvyd8Iq5PyfI')
     keyboard = VkKeyboard(one_time=False)
 
     if response == 'культурно-массовые мероприятия' or response == 'информационное' \
@@ -87,15 +96,15 @@ def create_keyboard(response):
     else:
         keyboard.add_button('Структура', color=VkKeyboardColor.PRIMARY)
         keyboard.add_button('Контакты', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_line()
         keyboard.add_button('Нормативная база', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
         keyboard.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
+        keyboard.add_openlink_button('Рассылка', 'https://vk.com/app5728966_-196777400?ref=group_menu')
 
     keyboard = keyboard.get_keyboard()
     return keyboard
 
 
-# TODO: убрать план мероприятий
 def bot():  # Основная функция
     global event, keyboard, test
     while True:
@@ -213,7 +222,3 @@ def bot():  # Основная функция
                             send("Пожалуйста, используйте кнопки", keyboard)
         except:
             print(traceback.format_exc())
-
-
-if __name__ == '__main__':
-    bot()  # Запуск бота
