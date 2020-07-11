@@ -1,4 +1,6 @@
 # !/usr/bin/env python
+import sys
+sys.path.insert(0, '../')
 from data import token
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
