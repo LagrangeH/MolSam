@@ -97,10 +97,9 @@ def create_keyboard(response):
     else:
         keyboard.add_button('Структура', color=VkKeyboardColor.PRIMARY)
         keyboard.add_button('Контакты', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_button('Нормативная база', color=VkKeyboardColor.PRIMARY)
         keyboard.add_line()
+        keyboard.add_button('Нормативная база', color=VkKeyboardColor.PRIMARY)
         keyboard.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
-        keyboard.add_button('Рассылка', color=VkKeyboardColor.DEFAULT)
 
     keyboard = keyboard.get_keyboard()
     return keyboard
@@ -148,8 +147,6 @@ def bot():  # Основная функция
                                 users[user_id] = SetUnicVariables(response)
 
                             send("Выберите направление:", keyboard)
-                        elif response == 'рассылка':
-                            send("Вы подписались на рассылку", keyboard)
 
                         # Кнопки меню структуры
                         elif response == '1. кульурно-массовые мероприятия':
