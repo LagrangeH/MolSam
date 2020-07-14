@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 from data import token
 import vk_api
-from vk_api.longpoll import VkLongPoll, VkEventType
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
 import traceback
@@ -11,8 +11,9 @@ import traceback
 vk = vk_api.VkApi(token=token)
 session = vk.get_api()
 
+
 # Переменные
-longpoll = VkLongPoll(vk)
+longpoll = VkBotLongPoll(vk, 196777400)
 users = {}
 print("Бот запущен")
 
@@ -34,15 +35,17 @@ class SetUnicVariables:
         else:
             send("Подтвердим запрос: Вы хотитите вступить в Молодежное самоуправление на "
                  "направление {0}\nПравильно?".format(self.direction), keyboard)
-        full_name = session.users.get(
-            user_ids=session.messages.getById(message_ids=self.event.message_id)['items'][0]['from_id'])
+        full_name = vk.method("users.get", {"user_ids": event.obj.from_id})[0]['first_name'] + \
+                    ' ' + vk.method("users.get", {"user_ids": event.obj.from_id})[0]['last_name']
+
         return self.direction
 
 
 # Функции
 def send(message, kb, attachment=None, payload=None):
     vk.method('messages.send',
-              {'user_id': event.user_id, 'message': message, 'random_id': get_random_id(),
+              {'peer_id': event.obj.peer_id, 'user_id': event.obj.user_id, 'message': message,
+               'random_id': get_random_id(),
                'attachment': attachment, 'keyboard': kb, 'payload': payload})
 
 
@@ -110,16 +113,17 @@ def bot():  # Основная функция
     while True:
         try:
             for event in longpoll.listen():
-                if event.type == VkEventType.MESSAGE_NEW:
-                    if not event.from_me and event.from_user:
-                        response = event.text.lower()
+                if event.type == VkBotEventType.MESSAGE_NEW:
+                    if event.from_user:
+                        response = event.obj.text.lower()
                         keyboard = create_keyboard(response)
                         # Добавление пользователя в массив данных пользователей
-                        user_id = session.messages.getById(message_ids=event.message_id)['items'][0]['from_id']
-                        if users.get(user_id) is None:
-                            users[user_id] = SetUnicVariables(response)
+                        # user_id = session.messages.getById(message_ids=event.obj.message_id)['items'][0]['from_id']
+                        # if users.get(user_id) is None:
+                        #     users[user_id] = SetUnicVariables(response)
 
                         if response == 'начать' or response == 'меню':
+                            # print('+')
                             send("Меню:", keyboard)
 
                         # Кнопки основного меню
@@ -141,7 +145,7 @@ def bot():  # Основная функция
                                  "председателя по корпоративной культуре\n\n@id466687166(Карина Грахова)\n"
                                  "Заместитель председателя по спортивному направлению ", keyboard)
                         elif response == 'хочу вступить в мс':
-                            user_id = session.messages.getById(message_ids=event.message_id)['items'][0]['from_id']
+                            user_id = event.obj.user_id
 
                             if users.get(user_id) is None:
                                 users[user_id] = SetUnicVariables(response)
@@ -205,7 +209,7 @@ def bot():  # Основная функция
                             vk.method('messages.send',
                                       {'chat_id': 1,
                                        'message': "@id{0}({1}) хочет вступить в МС.\nНаправление: {2}".format(
-                                           event.user_id, full_name[0]['first_name'] + ' ' + full_name[0]['last_name'],
+                                           event.obj.from_id, full_name,
                                            test), 'random_id': get_random_id(), 'attachment': None,
                                        'keyboard': None})
 
