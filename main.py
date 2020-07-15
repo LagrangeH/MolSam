@@ -40,87 +40,82 @@ class SetUnicVariables:
 
 
 # Функции
-def send(message, kb, attachment=None, payload=None):
+def send(message, kb, attachment=None):
     vk.method('messages.send',
               {'peer_id': event.obj.peer_id, 'user_id': event.obj.user_id, 'message': message,
                'random_id': get_random_id(),
-               'attachment': attachment, 'keyboard': kb, 'payload': payload})
+               'attachment': attachment, 'keyboard': kb})
 
 
 def create_inline_kb():
-    keyboard = VkKeyboard(inline=True)
-    keyboard.add_openlink_button('Вступить в  общую беседу', 'https://vk.me/join/AJQ1dyhiTxhUMvyd8Iq5PyfI')
-    if test == 'культурно-массовые мероприятия':
-        keyboard.add_line()
-        keyboard.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d_UYIBiOxLbcrwCtzp3t')
-    if test == 'информационное':
-        keyboard.add_line()
-        keyboard.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d8sGNxjh0FKltch6tUZ1')
-    if test == 'корпоративная культура':
-        keyboard.add_line()
-        keyboard.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d37oIhhvkWSKlsSAplFD')
-    if test == 'спортивное':
-        keyboard.add_line()
-        keyboard.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1dxUFNhjXn8R4wHWYPub2')
-    keyboard = keyboard.get_keyboard()
-    return keyboard
+    kb = VkKeyboard(inline=True)
+    kb.add_openlink_button('Вступить в  общую беседу', 'https://vk.me/join/AJQ1dyhiTxhUMvyd8Iq5PyfI')
+    if userdata == 'культурно-массовые мероприятия':
+        kb.add_line()
+        kb.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d_UYIBiOxLbcrwCtzp3t')
+    if userdata == 'информационное':
+        kb.add_line()
+        kb.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d8sGNxjh0FKltch6tUZ1')
+    if userdata == 'корпоративная культура':
+        kb.add_line()
+        kb.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d37oIhhvkWSKlsSAplFD')
+    if userdata == 'спортивное':
+        kb.add_line()
+        kb.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1dxUFNhjXn8R4wHWYPub2')
+    kb = kb.get_keyboard()
+    return kb
 
 
-def create_keyboard(response, payload):
-    keyboard = VkKeyboard(one_time=False)
+def create_keyboard(response):
+    kb = VkKeyboard(one_time=False)
     if response == 'культурно-массовые мероприятия' or response == 'информационное' \
             or response == 'корпоративная культура' or response == 'спортивное' \
             or response == 'я пока не определился(-ась)':
-        keyboard.add_button('Да', color=VkKeyboardColor.POSITIVE)
-        keyboard.add_button('Нет, изменить', color=VkKeyboardColor.NEGATIVE)
-        keyboard.add_line()
-        keyboard.add_button('Меню', color=VkKeyboardColor.DEFAULT)
+        kb.add_button('Да', color=VkKeyboardColor.POSITIVE)
+        kb.add_button('Нет, изменить', color=VkKeyboardColor.NEGATIVE)
+        kb.add_line()
+        kb.add_button('Меню', color=VkKeyboardColor.DEFAULT)
     elif response == 'хочу вступить в мс' or response == 'нет, изменить':
-        keyboard.add_button('Культурно-массовые мероприятия', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_button('Информационное', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_line()
-        keyboard.add_button('Корпоративная культура', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_button('Спортивное', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_line()
-        keyboard.add_button('Я пока не определился(-ась)', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_line()
-        keyboard.add_button('Меню', color=VkKeyboardColor.DEFAULT)
+        kb.add_button('Культурно-массовые мероприятия', color=VkKeyboardColor.PRIMARY)
+        kb.add_button('Информационное', color=VkKeyboardColor.PRIMARY)
+        kb.add_line()
+        kb.add_button('Корпоративная культура', color=VkKeyboardColor.PRIMARY)
+        kb.add_button('Спортивное', color=VkKeyboardColor.PRIMARY)
+        kb.add_line()
+        kb.add_button('Я пока не определился(-ась)', color=VkKeyboardColor.PRIMARY)
+        kb.add_line()
+        kb.add_button('Меню', color=VkKeyboardColor.DEFAULT)
     elif response == 'структура' or response == '1. кульурно-массовые мероприятия' \
             or response == '2. информационное направление' \
             or response == '3. корпоративная культура' or response == '4. спортивное направление':
-        keyboard.add_button('1. Кульурно-массовые мероприятия', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_button('2. Информационное направление', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_line()
-        keyboard.add_button('3. Корпоративная культура', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_button('4. Спортивное направление', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_line()
-        keyboard.add_button('Меню', color=VkKeyboardColor.DEFAULT)
-        keyboard.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
+        kb.add_button('1. Кульурно-массовые мероприятия', color=VkKeyboardColor.PRIMARY)
+        kb.add_button('2. Информационное направление', color=VkKeyboardColor.PRIMARY)
+        kb.add_line()
+        kb.add_button('3. Корпоративная культура', color=VkKeyboardColor.PRIMARY)
+        kb.add_button('4. Спортивное направление', color=VkKeyboardColor.PRIMARY)
+        kb.add_line()
+        kb.add_button('Меню', color=VkKeyboardColor.DEFAULT)
+        kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
     else:
-        keyboard.add_button('Структура', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_button('Контакты', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_line()
-        keyboard.add_button('Нормативная база', color=VkKeyboardColor.PRIMARY)
-        keyboard.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
+        kb.add_button('Структура', color=VkKeyboardColor.PRIMARY)
+        kb.add_button('Контакты', color=VkKeyboardColor.PRIMARY)
+        kb.add_line()
+        kb.add_button('Нормативная база', color=VkKeyboardColor.PRIMARY)
+        kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
 
-    keyboard = keyboard.get_keyboard()
-    return keyboard
+    kb = kb.get_keyboard()
+    return kb
 
 
 def bot():  # Основная функция
-    global event, keyboard, test
+    global event, keyboard, userdata
     while True:
         try:
             for event in longpoll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
 
-                    if event.obj.payload is not None:
-                        payload = event.obj.payload
-                    else:
-                        payload = None
-
                     response = event.obj.text.lower()
-                    keyboard = create_keyboard(response, payload)
+                    keyboard = create_keyboard(response)
 
                     if response == 'начать' or response == 'меню':
                         send("Меню:", keyboard)
@@ -193,15 +188,15 @@ def bot():  # Основная функция
 
                     # Кнопки меню вступления в МС
                     elif response == 'культурно-массовые мероприятия':
-                        test = users[user_id].voter('культурно-массовые мероприятия')
+                        userdata = users[user_id].voter('культурно-массовые мероприятия')
                     elif response == 'информационное':
-                        test = users[user_id].voter('информационное')
+                        userdata = users[user_id].voter('информационное')
                     elif response == 'корпоративная культура':
-                        test = users[user_id].voter('корпоративная культура')
+                        userdata = users[user_id].voter('корпоративная культура')
                     elif response == 'спортивное':
-                        test = users[user_id].voter('спортивное')
+                        userdata = users[user_id].voter('спортивное')
                     elif response == 'я пока не определился(-ась)':
-                        test = users[user_id].voter('я пока не определился(-ась)')
+                        userdata = users[user_id].voter('я пока не определился(-ась)')
 
                     # Подтвержение вступления в МС
                     elif response == 'да':
@@ -209,13 +204,13 @@ def bot():  # Основная функция
                                   {'chat_id': 1,
                                    'message': "@id{0}({1}) хочет вступить в МС.\nНаправление: {2}".format(
                                        event.obj.from_id, full_name,
-                                       test), 'random_id': get_random_id(), 'attachment': None,
+                                       userdata), 'random_id': get_random_id(), 'attachment': None,
                                    'keyboard': None})
 
                         keyboard = create_inline_kb()
                         send('Уведомление о вступлении отправлено руководителям\nНажмите на кнопку, '
                              'чтобы вступить в беседу', keyboard)
-                        keyboard = create_keyboard(response, payload)
+                        keyboard = create_keyboard(response)
                         send('Меню', keyboard)
 
                     elif response == 'нет, изменить':
