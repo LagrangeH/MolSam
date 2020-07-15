@@ -68,8 +68,6 @@ def create_inline_kb():
 
 def create_keyboard(response, payload):
     keyboard = VkKeyboard(one_time=False)
-    if payload is None:
-        pass
     if response == 'культурно-массовые мероприятия' or response == 'информационное' \
             or response == 'корпоративная культура' or response == 'спортивное' \
             or response == 'я пока не определился(-ась)':
@@ -217,6 +215,8 @@ def bot():  # Основная функция
                         keyboard = create_inline_kb()
                         send('Уведомление о вступлении отправлено руководителям\nНажмите на кнопку, '
                              'чтобы вступить в беседу', keyboard)
+                        keyboard = create_keyboard(response, payload)
+                        send('Меню', keyboard)
 
                     elif response == 'нет, изменить':
                         send("Выберите направление:", keyboard)
