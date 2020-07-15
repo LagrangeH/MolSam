@@ -114,7 +114,7 @@ def bot():  # Основная функция
     while True:
         try:
             for event in longpoll.listen():
-                if event.type == VkBotEventType.MESSAGE_NEW:
+                if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
 
                     if event.obj.payload is not None:
                         payload = event.obj.payload
@@ -124,7 +124,7 @@ def bot():  # Основная функция
                     response = event.obj.text.lower()
                     keyboard = create_keyboard(response, payload)
 
-                    if response == 'начать' or response == 'меню' or payload is None:
+                    if response == 'начать' or response == 'меню':
                         send("Меню:", keyboard)
 
                     # Кнопки основного меню
