@@ -2,6 +2,6 @@
 __pycache__
 data.py
 *.json
-test*.py
+test*.*
 *.pem
 *.ppk

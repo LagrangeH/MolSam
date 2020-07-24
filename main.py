@@ -1,10 +1,13 @@
 # !/usr/bin/env python
-from data import token
+import os
+from data import token, url
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
 import traceback
+import urllib.request
+# import logging
 
 # Авторизация ВК
 vk = vk_api.VkApi(token=token)
@@ -13,6 +16,7 @@ session = vk.get_api()
 # Переменные
 longpoll = VkBotLongPoll(vk, 196777400)
 users = {}
+# logging.basicConfig(filename="logs.log", level=logging.INFO)
 print("Бот запущен")
 
 
@@ -107,7 +111,7 @@ def create_keyboard(response):
     return kb
 
 
-def bot():  # Основная функция
+def bot(user_num=0):  # Основная функция
     global event, keyboard, userdata
     while True:
         try:
@@ -215,7 +219,28 @@ def bot():  # Основная функция
 
                     elif response == 'нет, изменить':
                         send("Выберите направление:", keyboard)
+                    elif response == '_users':
+                        try:
+                            name = "mailing_users.txt"
+                            urllib.request.urlretrieve(url, name)
+                            mailers = ''
+
+                            with open(name, "r") as file:
+                                for line in file:
+                                    # line.replace(' ', '')
+                                    user_name = vk.method("users.get", {"user_ids": line})[0]['first_name'] + \
+                                                ' ' + vk.method("users.get", {"user_ids": line})[0]['last_name']
+                                    user_num += 1
+                                    mailers += '\n{0}. @id{1} ({2})'.format(user_num, line.strip(), user_name)
+                                send(mailers, keyboard)
+
+                            os.remove("mailing_users.txt")
+
+                        except:
+                            print(traceback.format_exc())
+                            send(traceback.format_exc(), keyboard)
                     else:
                         send("Пожалуйста, используйте кнопки", keyboard)
         except:
             print(traceback.format_exc())
+            # TODO: do logging of exceptions
