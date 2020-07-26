@@ -227,7 +227,6 @@ def bot(user_num=0):  # Основная функция
 
                             with open(name, "r") as file:
                                 for line in file:
-                                    # line.replace(' ', '')
                                     user_name = vk.method("users.get", {"user_ids": line})[0]['first_name'] + \
                                                 ' ' + vk.method("users.get", {"user_ids": line})[0]['last_name']
                                     user_num += 1
@@ -244,4 +243,3 @@ def bot(user_num=0):  # Основная функция
                         send("Пожалуйста, используйте кнопки", keyboard)
         except:
             print(traceback.format_exc())
-            # TODO: do logging of exceptions
