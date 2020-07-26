@@ -235,6 +235,7 @@ def bot(user_num=0):  # Основная функция
                                 send(mailers, keyboard)
 
                             os.remove("mailing_users.txt")
+                            user_num = 0
 
                         except:
                             print(traceback.format_exc())
