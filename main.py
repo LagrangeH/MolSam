@@ -1,22 +1,19 @@
 # !/usr/bin/env python
 import os
-from data import token, url
+from data import *
+import traceback
+import urllib.request
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
-import traceback
-import urllib.request
-# import logging
 
 # Авторизация ВК
 vk = vk_api.VkApi(token=token)
 session = vk.get_api()
 
-# Переменные
 longpoll = VkBotLongPoll(vk, 196777400)
 users = {}
-# logging.basicConfig(filename="logs.log", level=logging.INFO)
 print("Бот запущен")
 
 
@@ -46,8 +43,8 @@ class SetUnicVariables:
 # Функции
 def send(message, kb, attachment=None):
     vk.method('messages.send',
-              {'peer_id': event.obj.peer_id, 'user_id': event.obj.user_id, 'message': message,
-               'random_id': get_random_id(),
+              {'peer_id': event.obj.peer_id, 'user_id': event.obj.user_id,
+               'message': message, 'random_id': get_random_id(),
                'attachment': attachment, 'keyboard': kb})
 
 
@@ -107,7 +104,7 @@ def create_keyboard(response):
 
 
 def bot(user_num=0):  # Основная функция
-    global event, keyboard, userdata
+    global event, keyboard, userdata, user_id
     while True:
         try:
             for event in longpoll.listen():
