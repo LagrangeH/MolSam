@@ -5,3 +5,4 @@ data.py
 test*.*
 *.pem
 *.ppk
+words.sqlite

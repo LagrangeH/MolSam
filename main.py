@@ -1,5 +1,6 @@
 # !/usr/bin/env python
 import os
+import sys
 from data import *
 import traceback
 import urllib.request
@@ -7,6 +8,7 @@ import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
+import pymysql.cursors
 
 # Авторизация ВК
 vk = vk_api.VkApi(token=token)
