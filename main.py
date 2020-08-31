@@ -217,7 +217,9 @@ def bot(user_num=0):  # Основная функция
                             print(traceback.format_exc())
                             send(traceback.format_exc(), keyboard)
                     else:
-                        send("Пожалуйста, используйте кнопки", keyboard)
+                        send("Если ты хочешь связаться с руководителями Молодёжного самоуправления, "
+                             "напиши в личные сообщения любому из них. "
+                             "Для этого можешь воспользоваться кнопкой 'Контакты'", keyboard)
 
         except:
             print(traceback.format_exc())
