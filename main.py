@@ -92,7 +92,7 @@ def create_keyboard(response):
         kb.add_button('Меню', color=VkKeyboardColor.DEFAULT)
         kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
     elif response == 'контакты' or response == 'нормативная база' or response == 'меню' \
-            or response == 'начать' or response == 'привет':
+            or response == 'начать' or response == 'привет' or response == 'шар судьбы':
         kb.add_button('Структура', color=VkKeyboardColor.PRIMARY)
         kb.add_button('Контакты', color=VkKeyboardColor.PRIMARY)
         kb.add_line()
@@ -142,7 +142,7 @@ def bot(user_num=0):  # Основная функция
                     elif response == 'хочу вступить в мс':
                         send("Выберите направление:", keyboard)
                     elif response == 'шар судьбы':
-                        send(f"Шар судьбы говорит:\n{random.choice(ball)}", keyboard)
+                        send(f"Шар судьбы говорит:\n\n«{random.choice(ball)}»", keyboard)
 
                     # Кнопки меню структуры
                     elif response == '1. кульурно-массовые мероприятия':
