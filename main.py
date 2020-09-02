@@ -2,6 +2,7 @@
 import os
 from data import *
 import traceback
+import random
 import urllib.request
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
@@ -90,12 +91,15 @@ def create_keyboard(response):
         kb.add_line()
         kb.add_button('Меню', color=VkKeyboardColor.DEFAULT)
         kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
-    elif response == 'контакты' or response == 'нормативная база' or response == 'меню' or response == 'начать':
+    elif response == 'контакты' or response == 'нормативная база' or response == 'меню' \
+            or response == 'начать' or response == 'привет':
         kb.add_button('Структура', color=VkKeyboardColor.PRIMARY)
         kb.add_button('Контакты', color=VkKeyboardColor.PRIMARY)
-        kb.add_button('Нормативная база', color=VkKeyboardColor.PRIMARY)
         kb.add_line()
+        kb.add_button('Нормативная база', color=VkKeyboardColor.PRIMARY)
         kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
+        kb.add_line()
+        kb.add_button('Шар судьбы', color=VkKeyboardColor.DEFAULT)
     else:
         kb.add_button('Меню', color=VkKeyboardColor.DEFAULT)
 
@@ -115,7 +119,7 @@ def bot(user_num=0):  # Основная функция
                         users[user_id] = SetUnicVariables
 
                     keyboard = create_keyboard(response)
-                    if response == 'начать' or response == 'меню':
+                    if response == 'начать' or response == 'меню' or response == 'привет':
                         send("Меню:", keyboard)
 
                     # Кнопки основного меню
@@ -137,6 +141,8 @@ def bot(user_num=0):  # Основная функция
                              "председателя по корпоративной культуре", keyboard)
                     elif response == 'хочу вступить в мс':
                         send("Выберите направление:", keyboard)
+                    elif response == 'шар судьбы':
+                        send(f"Шар судьбы говорит:\n{random.choice(ball)}", keyboard)
 
                     # Кнопки меню структуры
                     elif response == '1. кульурно-массовые мероприятия':
