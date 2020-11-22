@@ -6,3 +6,4 @@ test*.*
 *.pem
 *.ppk
 words.sqlite
+*.log

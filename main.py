@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 import os
 from data import *
+import json
 import traceback
 import random
 import urllib.request
@@ -9,6 +10,7 @@ from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
 from time import sleep
+from loguru import logger
 
 # Авторизация ВК
 vk = vk_api.VkApi(token=token)
@@ -16,7 +18,8 @@ session = vk.get_api()
 
 longpoll = VkBotLongPoll(vk, 196777400)
 users = {}
-print("Бот запущен")
+logger.add("error.log", format="{time} {level} {message}", level="ERROR", rotation="100 KB", compression="zip")
+logger.info("Бот запущен")
 
 
 # Классы
@@ -41,6 +44,7 @@ class SetUnicVariables:
 
 
 # Функции
+@logger.catch()
 def mailing_subscribers():
     message_id = message_about_processing(None, 0)
     try:
@@ -57,7 +61,7 @@ def mailing_subscribers():
                 with open(name, "r") as f2:
                     len_file = sum(1 for _ in f2)
                     # if
-                    message_about_processing(message_id, 75 // sum(1 for _ in f2) * user_num + 25)
+                    # message_about_processing(message_id, 75 // sum(1 for _ in f2) * user_num + 25)
                 user_name = vk.method("users.get", {"user_ids": line})[0]['first_name'] + \
                             ' ' + vk.method("users.get", {"user_ids": line})[0]['last_name']
                 user_num += 1
@@ -159,6 +163,7 @@ def create_keyboard(response):
     return kb
 
 
+@logger.catch()
 def bot():  # Основная функция
     global event, keyboard, userdata, user_id
     while True:
@@ -166,7 +171,7 @@ def bot():  # Основная функция
             for event in longpoll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
                     response = event.obj.text.lower()
-                    user_id = event.obj.user_id
+                    user_id = event.obj.from_id
                     if users.get(user_id) is None:
                         users[user_id] = SetUnicVariables()
 
@@ -261,9 +266,18 @@ def bot():  # Основная функция
                     elif response == '_users':
                         mailing_subscribers()
                     else:
-                        send_message("Если ты хочешь связаться с руководителями Молодёжного самоуправления, "
-                                     "напиши в личные сообщения любому из них. "
-                                     "Для этого можешь воспользоваться кнопкой 'Контакты'", keyboard)
+                        message_id = vk.method('messages.getHistory', {'user_id': user_id})['count']
+
+                        session.messages.send(
+                            chat_id=5,
+                            message='Новое сообщение в группе',
+                            random_id=get_random_id(),
+                            forward=json.dumps({'peer_id': user_id,
+                                                'conversation_message_ids': message_id+1})
+                        )
+
+                        send_message("Мы скоро тебе ответим. Также ты можешь обратиться лично к любому руководителю "
+                                     "Молодёжного самоуправления, для этого нажми кнопку 'Контакты'", keyboard)
 
         except:
-            print(traceback.format_exc())
+            logger.error(traceback.format_exc())
