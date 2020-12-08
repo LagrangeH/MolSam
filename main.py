@@ -155,6 +155,8 @@ def create_keyboard(response):
         kb.add_button('Нормативная база', color=VkKeyboardColor.PRIMARY)
         kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
         kb.add_line()
+        kb.add_button('Ярмарка учебных мест', color=VkKeyboardColor.PRIMARY)
+        kb.add_line()
         kb.add_button('Шар судьбы', color=VkKeyboardColor.SECONDARY)
     else:
         kb.add_button('Меню', color=VkKeyboardColor.SECONDARY)
@@ -235,6 +237,10 @@ def bot():  # Основная функция
                                      "🧩 завести новые интересные и полезные знакомства.\n"
                                      "Интересно?😏\n"
                                      "Пиши @arishkamal(Арине) и она все тебе подробно расскажет 🤗", keyboard)
+
+                    # Кнопка Ярмарки учебных мест
+                    elif response == 'ярмарка учебных мест':
+                        send_message("𝕮𝖔𝖒𝖎𝖓𝖌 𝖘𝖔𝖔𝖓", keyboard)
 
                     # Кнопки меню вступления в МС
                     elif response == 'культурно-массовые мероприятия':
