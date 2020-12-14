@@ -25,19 +25,22 @@ logger.info("Бот запущен")
 
 # Классы
 class SetUnicVariables:
-    def __init__(self):
+    def __init__(self, user_id):
         self.event = event
+        self.user_id = user_id
         self.direction = ''
+        self.gender = ''
 
     def voter(self, v=None):
         global full_name
         self.direction = v
-        if self.direction == 'я пока не определился(-ась)':
-            send_message("Подтвердим запрос: Вы хотитите вступить в Молодежное самоуправление, но с направлением не "
-                         "определились\nПравильно?", keyboard)
+        self.gender = 'ась' if determine_gender(self.user_id) == 'w' else 'ся'
+        if self.direction == 'я пока не определился':
+            send_message(f"Подтвердим запрос: \nТы хочешь вступить в Молодежное самоуправление, но с направлением не "
+                         "определил{self.gender}\nПравильно?", keyboard)
         else:
-            send_message("Подтвердим запрос: Вы хотитите вступить в Молодежное самоуправление на "
-                         "направление {0}\nПравильно?".format(self.direction), keyboard)
+            send_message(f"Подтвердим запрос: \nТы хочешь вступить в Молодежное самоуправление на "
+                         "направление {self.direction}\nПравильно?", keyboard)
         full_name = vk.method("users.get", {"user_ids": event.obj.from_id})[0]['first_name'] + ' ' + \
                     vk.method("users.get", {"user_ids": event.obj.from_id})[0]['last_name']
 
@@ -54,14 +57,12 @@ def mailing_subscribers():
         urllib.request.urlretrieve(url, name)
         mailers = ''
         user_num = 1
-        message_about_processing(message_id, 20)
 
         with open(name, "r") as file:
             message_about_processing(message_id, 25)
             for line in file:
                 with open(name, "r") as f2:
                     len_file = sum(1 for _ in f2)
-                    # if
                     # message_about_processing(message_id, 75 // sum(1 for _ in f2) * user_num + 25)
                 user_name = vk.method("users.get", {"user_ids": line})[0]['first_name'] + \
                             ' ' + vk.method("users.get", {"user_ids": line})[0]['last_name']
@@ -70,11 +71,17 @@ def mailing_subscribers():
             edit_message(f"Запрос выполнен 100%\n\n{mailers}", message_id)
 
         os.remove("mailing_users.txt")
-        user_num = 0
 
     except:
         logger.error(traceback.format_exc())
         send_message("Ошибка запроса", keyboard)
+
+
+def determine_gender(user_id):
+    if vk.method('users.get', {'user_ids': user_id, 'fields': 'sex'})[0]['sex'] == 1:
+        return 'w'
+    else:
+        return 'm'
 
 
 def message_about_processing(message_id, percent):
@@ -99,7 +106,8 @@ def send_message(message, kb, attachment=None):
     result = vk.method('messages.send',
                        {'peer_id': event.obj.peer_id, 'user_id': event.obj.user_id,
                         'message': message, 'random_id': get_random_id(),
-                        'attachment': attachment, 'keyboard': kb})
+                        'attachment': attachment, 'keyboard': kb,
+                        'dont_parse_links': 0})
     return result
 
 
@@ -115,11 +123,12 @@ def create_inline_kb():
     if userdata == 'корпоративная культура':
         kb.add_line()
         kb.add_openlink_button('Вступить в беседу нарпавления', 'https://vk.me/join/AJQ1d37oIhhvkWSKlsSAplFD')
+
     kb = kb.get_keyboard()
     return kb
 
 
-def create_keyboard(response):
+def create_keyboard(response, user_id=None):
     kb = VkKeyboard(one_time=False)
     if response == 'культурно-массовые мероприятия' or response == 'информационное' \
             or response == 'корпоративная культура' \
@@ -133,7 +142,10 @@ def create_keyboard(response):
         kb.add_button('Информационное', color=VkKeyboardColor.PRIMARY)
         kb.add_line()
         kb.add_button('Корпоративная культура', color=VkKeyboardColor.PRIMARY)
-        kb.add_button('Я пока не определился(-ась)', color=VkKeyboardColor.PRIMARY)
+        if determine_gender(user_id) == 'w':
+            kb.add_button('Я пока не определился', color=VkKeyboardColor.PRIMARY)
+        else:
+            kb.add_button('Я пока не определилась', color=VkKeyboardColor.PRIMARY)
         kb.add_line()
         kb.add_button('Меню', color=VkKeyboardColor.SECONDARY)
     elif response == 'структура' or response == '1. кульурно-массовые мероприятия' \
@@ -170,24 +182,30 @@ def bot():  # Основная функция
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
                     response = event.obj.text.lower()
                     user_id = event.obj.from_id
+                    # logger.debug(event.group_id)
+                    # logger.debug(
+                    #     session.groups.getMembers(
+                    #         group_id=event.group_id,
+                    #         filter='managers'
+                    #     )
+                    # )
                     if users.get(user_id) is None:
-                        users[user_id] = SetUnicVariables()
+                        users[user_id] = SetUnicVariables(user_id)
 
                     keyboard = create_keyboard(response)
                     if response == 'начать' or response == 'меню' or response == 'привет':
                         send_message("Меню:", keyboard)
 
                     # Кнопки основного меню
-
                     elif response == 'структура':
                         send_message(messages.structure, keyboard)
                     elif response == 'нормативная база':
-                        send_message("Появится позже", keyboard)
+                        send_message("Нормативная база появится позже", keyboard)
                     elif response == 'контакты':
                         for leader in messages.leaders:
                             send_message(leader, keyboard)
                     elif response == 'хочу вступить в мс':
-                        send_message("Выберите направление:", keyboard)
+                        send_message(messages.enter_ms, keyboard)
                     elif response == 'шар судьбы':
                         send_message(f"Шар судьбы говорит:\n\n«{random.choice(ball)}»", keyboard)
 
@@ -201,11 +219,8 @@ def bot():  # Основная функция
 
                     # Кнопка Ярмарки учебных мест
                     elif response == 'ярмарка учебных мест':
-                        send_message("""
-                                    💬Ярмарка учебных мест - это местный проект Коношской библиотеки им. Иосифа Бродского и молодежного самоуправления, направленный на помощь старшеклассникам в профориентации.\n 
-                                    📑Мы также делимся с вами информацией о правилах подачи документов для поступления, перечнем учебных заведений и пр. \n
-                                    📌Где находится ярмарка? - Ярмарка проходит в дистанционном режиме, по ссылке: https://vk.cc/bVZtuJ\n 
-                                    Посмотрел(а), но остались вопросы? Задай их прямо здесь и сейчас‼️""",
+                        send_message(messages.ya_u_m(vk.method('users.get',
+                                                               {'user_ids': user_id, 'fields': 'sex'})[0]['sex']),
                                      keyboard)
 
                     # Кнопки меню вступления в МС
