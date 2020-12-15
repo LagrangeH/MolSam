@@ -35,12 +35,12 @@ class SetUnicVariables:
         global full_name
         self.direction = v
         self.gender = 'ась' if determine_gender(self.user_id) == 'w' else 'ся'
-        if self.direction == 'я пока не определился':
+        if self.direction in ('не определился', 'не определилась'):
             send_message(f"Подтвердим запрос: \nТы хочешь вступить в Молодежное самоуправление, но с направлением не "
-                         "определил{self.gender}\nПравильно?", keyboard)
+                         f"определил{self.gender}\nПравильно?", keyboard)
         else:
             send_message(f"Подтвердим запрос: \nТы хочешь вступить в Молодежное самоуправление на "
-                         "направление {self.direction}\nПравильно?", keyboard)
+                         f"направление {self.direction}\nПравильно?", keyboard)
         full_name = vk.method("users.get", {"user_ids": event.obj.from_id})[0]['first_name'] + ' ' + \
                     vk.method("users.get", {"user_ids": event.obj.from_id})[0]['last_name']
 
@@ -57,16 +57,18 @@ def mailing_subscribers():
         urllib.request.urlretrieve(url, name)
         mailers = ''
         user_num = 1
+        percent = 0
 
         with open(name, "r") as file:
-            message_about_processing(message_id, 25)
+            message_about_processing(message_id, 35)
             for line in file:
-                with open(name, "r") as f2:
-                    len_file = sum(1 for _ in f2)
-                    # message_about_processing(message_id, 75 // sum(1 for _ in f2) * user_num + 25)
+                # logger.debug(len(list(file)))
                 user_name = vk.method("users.get", {"user_ids": line})[0]['first_name'] + \
                             ' ' + vk.method("users.get", {"user_ids": line})[0]['last_name']
                 user_num += 1
+                percent += 1
+                if percent == 15:
+                    message_about_processing(message_id, 70)
                 mailers += f'\n{user_num - 1}. @id{line.strip()} ({user_name})'
             edit_message(f"Запрос выполнен 100%\n\n{mailers}", message_id)
 
@@ -132,7 +134,7 @@ def create_keyboard(response, user_id=None, superuser=False):
     kb = VkKeyboard(one_time=False)
     if response == 'культурно-массовые мероприятия' or response == 'информационное' \
             or response == 'корпоративная культура' \
-            or response == 'я пока не определился(-ась)':
+            or response == 'не определился' or response == 'не определилась':
         kb.add_button('Да', color=VkKeyboardColor.POSITIVE)
         kb.add_button('Нет, изменить', color=VkKeyboardColor.NEGATIVE)
         kb.add_line()
@@ -143,9 +145,9 @@ def create_keyboard(response, user_id=None, superuser=False):
         kb.add_line()
         kb.add_button('Корпоративная культура', color=VkKeyboardColor.PRIMARY)
         if determine_gender(user_id) == 'w':
-            kb.add_button('Я пока не определился', color=VkKeyboardColor.PRIMARY)
+            kb.add_button('Не определилась', color=VkKeyboardColor.PRIMARY)
         else:
-            kb.add_button('Я пока не определилась', color=VkKeyboardColor.PRIMARY)
+            kb.add_button('Не определился', color=VkKeyboardColor.PRIMARY)
         kb.add_line()
         kb.add_button('Меню', color=VkKeyboardColor.SECONDARY)
     elif response == 'структура' or response == '1. кульурно-массовые мероприятия' \
@@ -161,6 +163,7 @@ def create_keyboard(response, user_id=None, superuser=False):
         kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
     elif superuser and response == 'для админов':
         kb.add_button('Рассылка', color=VkKeyboardColor.PRIMARY)
+        kb.add_button('Меню', color=VkKeyboardColor.SECONDARY)
     else:
         kb.add_button('Структура', color=VkKeyboardColor.PRIMARY)
         kb.add_button('Контакты', color=VkKeyboardColor.PRIMARY)
@@ -192,12 +195,11 @@ def bot():  # Основная функция
                     for manager in session.groups.getMembers(group_id=event.group_id, filter='managers')['items']:
                         if manager['id'] == user_id and manager['role'] in ('administrator', 'creator', 'editors'):
                             superuser = True
-                    logger.debug(superuser)
 
                     if users.get(user_id) is None:
                         users[user_id] = SetUnicVariables(user_id)
 
-                    keyboard = create_keyboard(response, superuser=superuser)
+                    keyboard = create_keyboard(response, user_id=user_id, superuser=superuser)
                     if response == 'начать' or response == 'меню' or response == 'привет':
                         send_message("Меню:", keyboard)
 
@@ -214,10 +216,14 @@ def bot():  # Основная функция
                     elif response == 'шар судьбы':
                         send_message(f"Шар судьбы говорит:\n\n«{random.choice(ball)}»", keyboard)
 
+                    # Кнопки для superuser
                     elif response == 'для админов' and superuser:
-                        send_message('coming soon', keyboard)
+                        send_message('Функции доступные только для администраторов и редакторов сообщества', keyboard)
                     elif response == 'рассылка' and superuser:
-                        send_message('coming soon', keyboard)
+                        send_message('Пользователи подписанные на основную рассылку сообщества '
+                                     '(Запрос займёт некоторое время)', keyboard)
+                        mailing_subscribers()
+
                     # Кнопки меню структуры
                     elif response == '1. кульурно-массовые мероприятия':
                         send_message(messages.kmm, keyboard)
@@ -239,28 +245,28 @@ def bot():  # Основная функция
                         userdata = users[user_id].voter(v='информационное')
                     elif response == 'корпоративная культура':
                         userdata = users[user_id].voter(v='корпоративная культура')
-                    elif response == 'я пока не определился(-ась)':
-                        userdata = users[user_id].voter(v='я пока не определился(-ась)')
+                    elif response == 'не определился' or response == 'не определилась':
+                        if determine_gender(user_id) == 'w':
+                            userdata = users[user_id].voter(v='не определилась')
+                        else:
+                            userdata = users[user_id].voter(v='не определился')
 
                     # Подтвержение вступления в МС
                     elif response == 'да':
                         vk.method('messages.send',
                                   {'chat_id': 5,
                                    'message': f"@id{event.obj.from_id}({full_name}) "
-                                              f"хочет вступить в МС.\nНаправление: {userdata}",
+                                              f"хочет вступить в Молодёжное самоуправление.\nНа направление: {userdata}",
                                    'random_id': get_random_id(), 'attachment': None,
                                    'keyboard': None})
 
                         keyboard = create_inline_kb()
-                        send_message('Уведомление о вступлении отправлено руководителям\nНажмите на кнопку, '
-                                     'чтобы вступить в беседу', keyboard)
+                        send_message('Руководители уведомлены о тебе\nТеперь можешь вступить в нужные беседы', keyboard)
                         keyboard = create_keyboard(response)
                         send_message('Меню', keyboard)
 
                     elif response == 'нет, изменить':
-                        send_message("Выберите направление:", keyboard)
-                    elif response == '_users':
-                        mailing_subscribers()
+                        send_message("Выбери направление", keyboard)
                     else:
                         message_id = vk.method('messages.getHistory', {'user_id': user_id})['count']
 
