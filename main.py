@@ -128,7 +128,7 @@ def create_inline_kb():
     return kb
 
 
-def create_keyboard(response, user_id=None):
+def create_keyboard(response, user_id=None, superuser=False):
     kb = VkKeyboard(one_time=False)
     if response == 'культурно-массовые мероприятия' or response == 'информационное' \
             or response == 'корпоративная культура' \
@@ -159,6 +159,8 @@ def create_keyboard(response, user_id=None):
         kb.add_line()
         kb.add_button('Меню', color=VkKeyboardColor.SECONDARY)
         kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
+    elif superuser and response == 'для админов':
+        kb.add_button('Рассылка', color=VkKeyboardColor.PRIMARY)
     else:
         kb.add_button('Структура', color=VkKeyboardColor.PRIMARY)
         kb.add_button('Контакты', color=VkKeyboardColor.PRIMARY)
@@ -168,6 +170,9 @@ def create_keyboard(response, user_id=None):
         kb.add_button('Ярмарка учебных мест', color=VkKeyboardColor.PRIMARY)
         kb.add_line()
         kb.add_button('Хочу вступить в МС', color=VkKeyboardColor.POSITIVE)
+        if superuser:
+            kb.add_line()
+            kb.add_button('Для админов', color=VkKeyboardColor.NEGATIVE)
 
     kb = kb.get_keyboard()
     return kb
@@ -182,17 +187,17 @@ def bot():  # Основная функция
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
                     response = event.obj.text.lower()
                     user_id = event.obj.from_id
-                    # logger.debug(event.group_id)
-                    # logger.debug(
-                    #     session.groups.getMembers(
-                    #         group_id=event.group_id,
-                    #         filter='managers'
-                    #     )
-                    # )
+
+                    superuser = False
+                    for manager in session.groups.getMembers(group_id=event.group_id, filter='managers')['items']:
+                        if manager['id'] == user_id and manager['role'] in ('administrator', 'creator', 'editors'):
+                            superuser = True
+                    logger.debug(superuser)
+
                     if users.get(user_id) is None:
                         users[user_id] = SetUnicVariables(user_id)
 
-                    keyboard = create_keyboard(response)
+                    keyboard = create_keyboard(response, superuser=superuser)
                     if response == 'начать' or response == 'меню' or response == 'привет':
                         send_message("Меню:", keyboard)
 
@@ -209,6 +214,10 @@ def bot():  # Основная функция
                     elif response == 'шар судьбы':
                         send_message(f"Шар судьбы говорит:\n\n«{random.choice(ball)}»", keyboard)
 
+                    elif response == 'для админов' and superuser:
+                        send_message('coming soon', keyboard)
+                    elif response == 'рассылка' and superuser:
+                        send_message('coming soon', keyboard)
                     # Кнопки меню структуры
                     elif response == '1. кульурно-массовые мероприятия':
                         send_message(messages.kmm, keyboard)
