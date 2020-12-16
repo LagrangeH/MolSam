@@ -188,7 +188,12 @@ def bot():  # Основная функция
         try:
             for event in longpoll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
-                    vk.method('groups.enableOnline', {'group_id': event.group_id})  # Включить Онлайн в сообществе
+
+                    try:
+                        vk.method('groups.enableOnline', {'group_id': event.group_id})  # Включить Онлайн в сообществе
+                    except Exception:
+                        pass
+
                     response = event.obj.text.lower()
                     user_id = event.obj.from_id
 
