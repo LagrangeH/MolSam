@@ -20,7 +20,7 @@ session = vk.get_api()
 longpoll = VkBotLongPoll(vk, 196777400)
 users = {}
 logger.add("error.log", format="{time} {level} {message}", level="ERROR", rotation="100 KB", compression="zip")
-logger.info("Бот запущен")
+logger.info("Bot started")
 
 
 # Классы
@@ -188,6 +188,7 @@ def bot():  # Основная функция
         try:
             for event in longpoll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
+                    vk.method('groups.enableOnline', {'group_id': event.group_id})  # Включить Онлайн в сообществе
                     response = event.obj.text.lower()
                     user_id = event.obj.from_id
 
@@ -281,5 +282,10 @@ def bot():  # Основная функция
                         send_message("Мы скоро тебе ответим. Также ты можешь обратиться лично к любому руководителю "
                                      "Молодёжного самоуправления, для этого нажми кнопку 'Контакты'", keyboard)
 
+        except KeyboardInterrupt:
+            logger.info('Bot stopped')
+            break
+        except TimeoutError:
+            logger.error('Ошибка времени ожидания. (Вероятно перезагрузка серверов VK)')
         except:
             logger.error(traceback.format_exc())
