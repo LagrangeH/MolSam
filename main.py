@@ -1,5 +1,8 @@
 # !/usr/bin/env python
 import os
+
+from requests import ReadTimeout
+
 from data import *
 import messages
 import json
@@ -279,18 +282,13 @@ def bot():  # Основная функция
                         session.messages.send(
                             chat_id=5,
                             message='Новое сообщение в группе',
-                            random_id=get_random_id(),
-                            forward=json.dumps({'peer_id': user_id,
-                                                'conversation_message_ids': message_id+1})
+                            random_id=get_random_id()
                         )
-
-                        send_message("Мы скоро тебе ответим. Также ты можешь обратиться лично к любому руководителю "
-                                     "Молодёжного самоуправления, для этого нажми кнопку 'Контакты'", keyboard)
 
         except KeyboardInterrupt:
             logger.info('Bot stopped')
             break
-        except TimeoutError:
+        except (TimeoutError, ReadTimeout):
             logger.error('Ошибка времени ожидания. (Вероятно перезагрузка серверов VK)')
         except:
             logger.error(traceback.format_exc())
