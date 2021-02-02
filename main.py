@@ -276,6 +276,11 @@ def bot():  # Основная функция
 
                     elif response == 'нет, изменить':
                         send_message("Выбери направление", keyboard)
+
+                    # Ко Дню Валентина
+                    elif response == 'валентинка':
+                        send_message('# coming soon #', keyboard)
+
                     else:
                         message_id = vk.method('messages.getHistory', {'user_id': user_id})['count']
 
