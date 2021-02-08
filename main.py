@@ -279,16 +279,18 @@ def bot():  # Основная функция
 
                     # Ко Дню Валентина
                     elif response == 'валентинка':
-                        send_message('# coming soon #', keyboard)
+                        send_message(messages.valentin, keyboard)
 
                     else:
-                        message_id = vk.method('messages.getHistory', {'user_id': user_id})['count']
+                        if user_id != 273207132:
+                            message_id = vk.method('messages.getHistory', {'user_id': user_id})['count']
 
-                        session.messages.send(
-                            chat_id=5,
-                            message='Новое сообщение в группе',
-                            random_id=get_random_id()
-                        )
+                            session.messages.send(
+                                chat_id=5,
+                                message='Новое сообщение в группе',
+                                random_id=get_random_id()
+                            )
+
 
         except KeyboardInterrupt:
             logger.info('Bot stopped')
